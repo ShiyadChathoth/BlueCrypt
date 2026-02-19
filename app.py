@@ -24,6 +24,7 @@ from bluecrypt_core import (
 
 LOSSLESS_TYPES = ["png", "bmp", "tif", "tiff"]
 RANDOM_AI_PHOTOS_DIR = Path(__file__).resolve().parent / "random_ai_photos"
+RANDOM_SECRET_FILES_DIR = Path(__file__).resolve().parent / "random_secret_files"
 LOSSLESS_EXTENSIONS = {f".{file_type}" for file_type in LOSSLESS_TYPES}
 
 
@@ -53,6 +54,20 @@ def list_random_ai_photos() -> list[Path]:
         if path.is_file() and path.suffix.lower() in LOSSLESS_EXTENSIONS
     ]
     return sorted(image_paths, key=lambda path: str(path.relative_to(RANDOM_AI_PHOTOS_DIR)).lower())
+
+
+def list_random_secret_files() -> list[Path]:
+    if not RANDOM_SECRET_FILES_DIR.exists():
+        return []
+    secret_paths = [
+        path
+        for path in RANDOM_SECRET_FILES_DIR.rglob("*")
+        if path.is_file() and path.name != ".gitkeep"
+    ]
+    return sorted(
+        secret_paths,
+        key=lambda path: str(path.relative_to(RANDOM_SECRET_FILES_DIR)).lower(),
+    )
 
 
 st.set_page_config(page_title="BlueCrypt", layout="wide")
@@ -170,7 +185,74 @@ with hide_tab:
             except BlueCryptError as err:
                 st.error(str(err))
 
-    secret_file = st.file_uploader("Upload Secret File", key="hide_secret")
+    secret_name = None
+    secret_data = None
+    secret_source = st.radio(
+        "Secret File Source",
+        options=["Upload Secret File", "Pre-generated random_secret_files"],
+        horizontal=True,
+        key="secret_source",
+    )
+
+    if secret_source == "Upload Secret File":
+        uploaded_secret = st.file_uploader("Upload Secret File", key="hide_secret")
+        if uploaded_secret:
+            secret_name = uploaded_secret.name
+            secret_data = uploaded_secret.getvalue()
+    else:
+        pre_generated_secret_files = list_random_secret_files()
+        selected_secret_path = None
+
+        if not pre_generated_secret_files:
+            st.warning(
+                f"No files found in `{RANDOM_SECRET_FILES_DIR}`. "
+                "Add files to this folder."
+            )
+        else:
+            selection_mode = st.radio(
+                "Secret Selection Mode",
+                options=["Manual", "Random"],
+                horizontal=True,
+                key="pre_generated_secret_selection_mode",
+            )
+            if selection_mode == "Manual":
+                selected_secret_path = st.selectbox(
+                    "Choose Pre-generated Secret File",
+                    options=pre_generated_secret_files,
+                    format_func=lambda p: str(p.relative_to(RANDOM_SECRET_FILES_DIR)),
+                    key="pre_generated_secret_manual_path",
+                )
+            else:
+                if (
+                    "pre_generated_secret_random_index" not in st.session_state
+                    or st.session_state.pre_generated_secret_random_index
+                    >= len(pre_generated_secret_files)
+                ):
+                    st.session_state.pre_generated_secret_random_index = random.randrange(
+                        len(pre_generated_secret_files)
+                    )
+                if st.button(
+                    "Pick Random Pre-generated Secret File",
+                    key="pick_random_pre_generated_secret",
+                ):
+                    st.session_state.pre_generated_secret_random_index = random.randrange(
+                        len(pre_generated_secret_files)
+                    )
+                selected_secret_path = pre_generated_secret_files[
+                    st.session_state.pre_generated_secret_random_index
+                ]
+                st.caption(
+                    "Randomly selected secret file: "
+                    f"{selected_secret_path.relative_to(RANDOM_SECRET_FILES_DIR)}"
+                )
+
+        if selected_secret_path:
+            try:
+                secret_name = selected_secret_path.name
+                secret_data = selected_secret_path.read_bytes()
+            except OSError as err:
+                st.error(f"Failed to read secret file: {err}")
+
     hide_password = st.text_input("Password", type="password", key="hide_password")
 
     if cover_preview:
@@ -181,14 +263,14 @@ with hide_tab:
             st.error(str(err))
 
     if st.button("Encrypt & Generate Stego PNG", key="hide_action"):
-        if not cover_preview or not secret_file or not hide_password:
+        if not cover_preview or secret_data is None or not hide_password:
             st.error("Cover image, secret file, and password are all required.")
         else:
             try:
                 with st.spinner("Encrypting and embedding payload..."):
                     cover_image = cover_preview
                     key = derive_key(hide_password)
-                    secret_blob = package_secret_file(secret_file.name, secret_file.getvalue())
+                    secret_blob = package_secret_file(secret_name, secret_data)
                     encrypted_blob = encrypt_payload(secret_blob, key)
                     stego_image = embed_encrypted_data(cover_image, encrypted_blob)
 

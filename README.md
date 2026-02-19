@@ -25,5 +25,6 @@ streamlit run app.py
 
 - `Hide Data`: Encrypt a secret file and embed it into a cover image. Output is PNG.
 - `Hide Data`: Choose cover image source as uploaded image(s) or pre-generated images in `random_ai_photos`. You can randomly pick from either source.
+- `Hide Data`: Choose secret file source as uploaded file or pre-generated files in `random_secret_files`. You can randomly pick from either source.
 - `Extract Data`: Recover encrypted payload from a stego image and decrypt with password.
 - `Analyze`: Compare original vs stego image and compute PSNR.
