@@ -35,7 +35,7 @@ pip install -r requirements.txt
 ## Run
 
 ```bash
-streamlit run app.py
+streamlit run app.py --client.toolbarMode minimal
 ```
 
 ## Uninstall (Ubuntu local install)

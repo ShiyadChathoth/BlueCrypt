@@ -95,6 +95,7 @@ start_server() {
     --server.headless true \
     --server.address "${HOST}" \
     --server.port "${PORT}" \
+    --client.toolbarMode minimal \
     >"${LOG_FILE}" 2>&1 &
   echo "$!" >"${PID_FILE}"
 
@@ -215,6 +216,7 @@ install_app() {
   copy_item "app.py"
   copy_item "bluecrypt_core.py"
   copy_item "requirements.txt"
+  copy_item ".streamlit"
   copy_item "random_ai_photos"
   copy_item "random_secret_files"
   copy_item "README.md"
