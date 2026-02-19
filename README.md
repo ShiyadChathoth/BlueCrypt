@@ -10,7 +10,7 @@ BlueCrypt is a Streamlit web app for secure image steganography using:
 ## One-Command Ubuntu Install (from Git)
 
 ```bash
-git clone <your-repo-url> BlueCrypt && cd BlueCrypt && ./install_ubuntu.sh
+git clone https://github.com/ShiyadChathoth/BlueCrypt.git BlueCrypt && cd BlueCrypt && ./install_ubuntu.sh
 ```
 
 What this does:
