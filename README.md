@@ -22,6 +22,7 @@ What this does:
 
 - From terminal: `bluecrypt`
 - From desktop apps: search for `BlueCrypt` and open it
+- If Chrome/Chromium is installed, it opens in app-window mode (desktop app style)
 
 ## Development Setup
 

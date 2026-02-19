@@ -116,11 +116,21 @@ start_server() {
 }
 
 open_browser() {
+  local browser
+
+  for browser in google-chrome google-chrome-stable chromium-browser chromium; do
+    if command -v "${browser}" >/dev/null 2>&1; then
+      "${browser}" --new-window --app="${URL}" >/dev/null 2>&1 &
+      return 0
+    fi
+  done
+
   if command -v xdg-open >/dev/null 2>&1; then
     xdg-open "${URL}" >/dev/null 2>&1 &
-  else
-    echo "Open this URL manually: ${URL}"
+    return 0
   fi
+
+  echo "Open this URL manually: ${URL}"
 }
 
 stop_server() {
