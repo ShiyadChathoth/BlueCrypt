@@ -7,7 +7,23 @@ BlueCrypt is a Streamlit web app for secure image steganography using:
 - 32-bit payload length header
 - PSNR analysis for imperceptibility checks
 
-## Setup
+## One-Command Ubuntu Install (from Git)
+
+```bash
+git clone <your-repo-url> BlueCrypt && cd BlueCrypt && ./install_ubuntu.sh
+```
+
+What this does:
+- Installs BlueCrypt to `~/.local/share/bluecrypt`
+- Creates command-line launcher: `~/.local/bin/bluecrypt`
+- Adds desktop app entry: `BlueCrypt` in Ubuntu app menu
+
+## Launch
+
+- From terminal: `bluecrypt`
+- From desktop apps: search for `BlueCrypt` and open it
+
+## Development Setup
 
 ```bash
 python3 -m venv .venv
@@ -19,6 +35,12 @@ pip install -r requirements.txt
 
 ```bash
 streamlit run app.py
+```
+
+## Uninstall (Ubuntu local install)
+
+```bash
+./uninstall_ubuntu.sh
 ```
 
 ## Features
