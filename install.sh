@@ -4,6 +4,7 @@ set -euo pipefail
 APP_ID="bluecrypt"
 APP_NAME="BlueCrypt"
 REPO_URL="https://github.com/ShiyadChathoth/BlueCrypt.git"
+CLONE_RETRIES=3
 
 OS_NAME="$(uname -s)"
 
@@ -33,7 +34,8 @@ esac
 BIN_DIR="${HOME}/.local/bin"
 LAUNCHER_PATH="${BIN_DIR}/${APP_ID}"
 
-SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_REF="${BASH_SOURCE[0]-$0}"
+SOURCE_DIR="$(cd "$(dirname "${SCRIPT_REF}")" && pwd)"
 REQUIRED_FILES=(
   "app.py"
   "bluecrypt_core.py"
@@ -45,6 +47,21 @@ cleanup_clone_dir() {
   if [[ -n "${dir}" && -d "${dir}" ]]; then
     rm -rf "${dir}"
   fi
+}
+
+clone_repo_with_retry() {
+  local target_dir="$1"
+  local attempt
+  for ((attempt=1; attempt<=CLONE_RETRIES; attempt++)); do
+    if git -c http.version=HTTP/1.1 clone --depth 1 "${REPO_URL}" "${target_dir}"; then
+      return 0
+    fi
+    if [[ "${attempt}" -lt "${CLONE_RETRIES}" ]]; then
+      echo "Clone attempt ${attempt}/${CLONE_RETRIES} failed. Retrying..."
+      sleep 2
+    fi
+  done
+  return 1
 }
 
 bootstrap_from_git_if_needed() {
@@ -72,7 +89,11 @@ bootstrap_from_git_if_needed() {
   trap "cleanup_clone_dir '${tmp_dir}'" EXIT
 
   echo "Fetching BlueCrypt from Git..."
-  git clone --depth 1 "${REPO_URL}" "${tmp_dir}/BlueCrypt"
+  if ! clone_repo_with_retry "${tmp_dir}/BlueCrypt"; then
+    echo "Failed to clone BlueCrypt after ${CLONE_RETRIES} attempts."
+    echo "Please check your network connection and try again."
+    exit 1
+  fi
   "${tmp_dir}/BlueCrypt/install.sh" --skip-bootstrap
   exit $?
 }
