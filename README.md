@@ -7,22 +7,32 @@ BlueCrypt is a Streamlit web app for secure image steganography using:
 - 32-bit payload length header
 - PSNR analysis for imperceptibility checks
 
-## One-Command Ubuntu Install (from Git)
+## One-Command Install (Linux + macOS, direct from Git)
 
 ```bash
-git clone https://github.com/ShiyadChathoth/BlueCrypt.git BlueCrypt && cd BlueCrypt && ./install_ubuntu.sh
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ShiyadChathoth/BlueCrypt/main/install.sh)"
 ```
 
 What this does:
-- Installs BlueCrypt to `~/.local/share/bluecrypt`
+- Downloads the latest code from Git and installs BlueCrypt locally
 - Creates command-line launcher: `~/.local/bin/bluecrypt`
-- Adds desktop app entry: `BlueCrypt` in Ubuntu app menu
+- Linux install path: `~/.local/share/bluecrypt`
+- macOS install path: `~/Library/Application Support/bluecrypt`
+- Linux desktop app entry: `BlueCrypt` in app menu
+- macOS shortcut: `~/Applications/BlueCrypt.command`
+
+Alternative (from a cloned repo):
+
+```bash
+git clone https://github.com/ShiyadChathoth/BlueCrypt.git BlueCrypt && cd BlueCrypt && ./install.sh
+```
 
 ## Launch
 
 - From terminal: `bluecrypt`
-- From desktop apps: search for `BlueCrypt` and open it
-- If Chrome/Chromium is installed, it opens in app-window mode (desktop app style)
+- Linux desktop apps: search for `BlueCrypt` and open it
+- macOS Finder: open `~/Applications/BlueCrypt.command`
+- If Chrome/Chromium is installed, it opens in app-window mode
 
 ## Development Setup
 
@@ -38,10 +48,10 @@ pip install -r requirements.txt
 streamlit run app.py --client.toolbarMode minimal
 ```
 
-## Uninstall (Ubuntu local install)
+## Uninstall (Linux + macOS local install)
 
 ```bash
-./uninstall_ubuntu.sh
+./uninstall.sh
 ```
 
 ## Features
